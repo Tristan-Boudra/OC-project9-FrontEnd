@@ -38,24 +38,38 @@ export default class Login {
   }
 
   handleSubmitAdmin = e => {
-    e.preventDefault()
-    const user = {
-      type: "Admin",
-      email: e.target.querySelector(`input[data-testid="employee-email-input"]`).value,
-      password: e.target.querySelector(`input[data-testid="employee-password-input"]`).value,
-      status: "connected"
+    e.preventDefault();
+
+    let user = null;
+  
+    // Récupère les valeurs du formulaire
+    const emailInput = e.target.querySelector(`input[data-testid="admin-email-input"]`);
+    const passwordInput = e.target.querySelector(`input[data-testid="admin-password-input"]`);
+  
+    // Vérif si les élèment existent
+    if (emailInput && passwordInput) {
+      user = {
+        type: "Admin",
+        email: emailInput.value,
+        password: passwordInput.value,
+        status: "connected",
+      };
+    } else {
+      console.error("Admin email or password input not found");
     }
-    this.localStorage.setItem("user", JSON.stringify(user))
-    this.login(user)
-      .catch(
-        (err) => this.createUser(user)
-      )
-      .then(() => {
-        this.onNavigate(ROUTES_PATH['Dashboard'])
-        this.PREVIOUS_LOCATION = ROUTES_PATH['Dashboard']
-        PREVIOUS_LOCATION = this.PREVIOUS_LOCATION
-        document.body.style.backgroundColor="#fff"
-      })
+    if (user){
+      this.localStorage.setItem("user", JSON.stringify(user))
+      this.login(user)
+        .catch(
+          (err) => this.createUser(user)
+        )
+        .then(() => {
+          this.onNavigate(ROUTES_PATH['Dashboard'])
+          this.PREVIOUS_LOCATION = ROUTES_PATH['Dashboard']
+          PREVIOUS_LOCATION = this.PREVIOUS_LOCATION
+          document.body.style.backgroundColor="#fff"
+        })
+    }
   }
 
   // not need to cover this function by tests
