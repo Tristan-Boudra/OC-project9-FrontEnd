@@ -72,6 +72,8 @@ export default class {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
+    this.counter = 0;
+    this.currentIndex = null;
     $('#arrow-icon1').click((e) => this.handleShowTickets(e, bills, 1))
     $('#arrow-icon2').click((e) => this.handleShowTickets(e, bills, 2))
     $('#arrow-icon3').click((e) => this.handleShowTickets(e, bills, 3))
@@ -131,27 +133,25 @@ export default class {
   }
 
   handleShowTickets(e, bills, index) {
-    if (this.counter === undefined || this.index !== index) this.counter = 0
-    if (this.index === undefined || this.index !== index) this.index = index
     if (this.counter % 2 === 0) {
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(0deg)'})
-      $(`#status-bills-container${this.index}`)
-        .html(cards(filteredBills(bills, getStatus(this.index))))
-      this.counter ++
+      $(`#arrow-icon${index}`).css({ transform: 'rotate(0deg)' });
+      $(`#status-bills-container${index}`).html(cards(filteredBills(bills, getStatus(index))));
+      this.counter++;
+      this.currentIndex = index;
     } else {
-      $(`#arrow-icon${this.index}`).css({ transform: 'rotate(90deg)'})
-      $(`#status-bills-container${this.index}`)
-        .html("")
-      this.counter ++
+      $(`#arrow-icon${index}`).css({ transform: 'rotate(90deg)' });
+      $(`#status-bills-container${index}`).html("");
+      this.counter++;
+      this.currentIndex = null;
     }
 
     bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
-    })
+      $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills));
+    });
 
-    return bills
-
+    return bills;
   }
+  
 
   getBillsAllUsers = () => {
     if (this.store) {
