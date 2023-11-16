@@ -16,33 +16,11 @@ export default class NewBill {
     this.fileName = null;
     this.billId = null;
     new Logout({ document, localStorage, onNavigate });
-    this.errorMsgElement = this.document.querySelector(
-      '[data-testid="error-message"]'
-    );
   }
   handleChangeFile = (e) => {
     e.preventDefault();
-
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
-    const file = fileInput.files[0];
-
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    // Vérifier l'extension du fichier
-    const allowedExtensions = ["jpg", "jpeg", "png"];
-    const fileExtension = file.name.split(".").pop().toLowerCase();
-
-    if (!allowedExtensions.includes(fileExtension)) {
-      this.errorMsgElement.textContent =
-        "Invalid file extension. Allowed extensions are jpg, jpeg, or png.";
-      return;
-    }
-
-    this.errorMsgElement.textContent = "";
-
+    const file = this.document.querySelector(`input[data-testid="file"]`)
+      .files[0];
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
     const formData = new FormData();
@@ -51,34 +29,36 @@ export default class NewBill {
     formData.append("file", file);
     formData.append("email", email);
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true,
-        },
-      })
-      .then(({ fileUrl, key }) => {
-        console.log(fileUrl);
-        this.billId = key;
-        this.fileUrl = fileUrl;
-        this.fileName = fileName;
-      })
-      .catch((error) => console.error(error));
+    // Accept only .jpg, .jpeg, and .png files
+    if (/\.(jpg|jpeg|png)$/i.test(fileName)) {
+      this.store
+        .bills()
+        .create({
+          data: formData,
+          headers: {
+            noContentType: true,
+          },
+        })
+        .then(({ fileUrl, key }) => {
+          this.billId = key;
+          this.fileUrl = fileUrl;
+          this.fileName = fileName;
+        })
+        .catch((error) => console.error(error));
+    } else {
+      const fileInput = this.document.querySelector(
+        `input[data-testid="file"]`
+      );
+      window.alert(
+        "Invalid file format. Supported file formats : .jpg .jpeg .png."
+      );
+      fileInput.value = "";
+      return false;
+    }
   };
 
   handleSubmit = (e) => {
     e.preventDefault();
-    // Vérif si l'extension est valide
-    if (!this.fileName || !this.fileName.match(/\.(jpg|jpeg|png)$/i)) {
-      // Affiche message d'erreur
-      this.errorMsgElement.textContent = "L'extension est invalide. Uniquement les extensions jpg, jpeg, ou png sont pris en charge.";
-      return;
-    }
-
-    this.errorMsgElement.textContent = "";
-
     const email = JSON.parse(localStorage.getItem("user")).email;
     const bill = {
       email,
