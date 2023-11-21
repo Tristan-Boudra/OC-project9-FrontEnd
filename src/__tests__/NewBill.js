@@ -66,8 +66,9 @@ describe("Given I am connected as an employee", () => {
   });
 
   describe("When I upload a file with an unsupported format on NewBill Page", () => {
-    test("Then an alert with an error message should be displayed", async () => {
+    test("Then an error message should be displayed", async () => {
       const fileInput = screen.getByTestId("file");
+      const errorInput = screen.getByTestId("error-file");
       const testFile = new File(["testFile"], "test.txt", {
         type: "text/txt",
       });
@@ -77,9 +78,7 @@ describe("Given I am connected as an employee", () => {
       expect(fileInput.files[0]).toStrictEqual(testFile);
       expect(fileInput.files.item(0)).toStrictEqual(testFile);
       expect(fileInput.files).toHaveLength(1);
-      expect(window.alert).toHaveBeenCalledWith(
-        "Invalid file format. Supported file formats : .jpg .jpeg .png."
-      );
+      expect(errorInput).toBeTruthy();
     });
   });
 

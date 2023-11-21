@@ -17,10 +17,18 @@ export default class NewBill {
     this.billId = null;
     new Logout({ document, localStorage, onNavigate });
   }
+
   handleChangeFile = (e) => {
     e.preventDefault();
-    const file = this.document.querySelector(`input[data-testid="file"]`)
-      .files[0];
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
+    const errorFileInput = this.document.querySelector(".error-file");
+    const file = fileInput.files[0];
+
+    if (!file) {
+      // Aucun fichier sélectionné
+      return;
+    }
+    
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
     const formData = new FormData();
@@ -31,6 +39,7 @@ export default class NewBill {
 
     // Accept only .jpg, .jpeg, and .png files
     if (/\.(jpg|jpeg|png)$/i.test(fileName)) {
+      errorFileInput.style.display = "none";
       this.store
         .bills()
         .create({
@@ -45,14 +54,11 @@ export default class NewBill {
           this.fileName = fileName;
         })
         .catch((error) => console.error(error));
+      return true;
     } else {
-      const fileInput = this.document.querySelector(
-        `input[data-testid="file"]`
-      );
-      window.alert(
-        "Invalid file format. Supported file formats : .jpg .jpeg .png."
-      );
+      // Fichier avec une extension différente de jpg, jpeg, ou png
       fileInput.value = "";
+      errorFileInput.style.display = "flex";
       return false;
     }
   };
