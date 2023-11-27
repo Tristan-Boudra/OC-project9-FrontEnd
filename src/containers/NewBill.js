@@ -6,12 +6,13 @@ export default class NewBill {
     this.document = document;
     this.onNavigate = onNavigate;
     this.store = store;
+    this.fileSelected = false;
     const formNewBill = this.document.querySelector(
       `form[data-testid="form-new-bill"]`
     );
     formNewBill.addEventListener("submit", this.handleSubmit);
     const file = this.document.querySelector(`input[data-testid="file"]`);
-    file.addEventListener("change", this.handleChangeFile);
+    file.addEventListener("change", this.handleChangeFile.bind(this));
     this.fileUrl = null;
     this.fileName = null;
     this.billId = null;
@@ -24,10 +25,8 @@ export default class NewBill {
     const errorFileInput = this.document.querySelector(".error-file");
     const file = fileInput.files[0];
 
-    if (!file) {
-      // Aucun fichier sélectionné
-      return;
-    }
+    // MAJ propriété fileSelected avec un booleen
+    this.fileSelected = !!file;
     
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
@@ -38,7 +37,7 @@ export default class NewBill {
     formData.append("email", email);
 
     // Accept only .jpg, .jpeg, and .png files
-    if (/\.(jpg|jpeg|png)$/i.test(fileName)) {
+    if (/\.(jpg|jpeg|png)$/i.test(fileName) && file) {
       errorFileInput.style.display = "none";
       this.store
         .bills()
@@ -66,6 +65,11 @@ export default class NewBill {
   handleSubmit = (e) => {
     e.preventDefault();
     const email = JSON.parse(localStorage.getItem("user")).email;
+    if (!this.fileSelected) {
+      const errorFileInput = this.document.querySelector(".error-file");
+      errorFileInput.style.display = "flex";
+      return;
+    }
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
