@@ -19,14 +19,27 @@ const row = (bill) => {
     `;
 };
 
-const rows = (data) => {
-  // Tri des factures par date en ordre décroissant
-  const sortedBills =
-    data && data.length
-      ? [...data].sort((a, b) => new Date(b.date) - new Date(a.date))
-      : [];
+// const rows = (data) => {
+//    return (data && data.length) ? data.sort((a, b) => a.date < b.date ? 1 : -1).map(bill => row(bill)).join("") : ""
+// }
 
-  return sortedBills.map((bill) => row(bill)).join("");
+const dateIsValid = (date) => {
+  return !Number.isNaN(new Date(date).getTime());
+}
+
+const rows = (data) => {
+  if (data && data.length) {
+    const sortedData = data
+      .filter(bill => dateIsValid(bill.date))
+      .sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return dateB - dateA;
+      });
+    return sortedData.map(bill => row(bill)).join("");
+  } else {
+    return "";
+  }
 };
 
 export default ({ data: bills, loading, error }) => {
